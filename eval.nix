@@ -1,4 +1,5 @@
 { pkgs ? import <nixpkgs> {}
+,  lib ? pkgs.lib
 , config ? {
   node1 = {
     # system = "aarch64-linux";
