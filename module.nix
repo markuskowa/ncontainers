@@ -1,4 +1,4 @@
-{ pkgs, lib, config, name, ... } :
+{ pkgs, lib, config, system, name, ... } :
 
 let
   inherit (lib)
@@ -94,7 +94,7 @@ in {
                   # ;
                   nixpkgs = {
                     # inherit pkgs;
-                    buildPlatform.system = builtins.currentSystem;
+                    buildPlatform.system = system;
                     hostPlatform.system = config.system;
                   };
                   boot.isContainer = true;
