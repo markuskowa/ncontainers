@@ -62,7 +62,7 @@ let
       '';
     in
     pkgs.writeScript "run-${name}" ''
-      ${optionalString optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
+      ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
       systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
           ${containerScript}
     ''
