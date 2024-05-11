@@ -1,5 +1,6 @@
 { pkgs ? import <nixpkgs> {}
-,  lib ? pkgs.lib
+, lib ? pkgs.lib
+, system ? builtins.currentSystem
 , config ? {
   node1 = {
     # system = "aarch64-linux";
@@ -31,7 +32,7 @@ let
   evalConfig = name: node: evalModules {
     modules = [
       { _module.args = {
-         inherit name pkgs;
+         inherit name pkgs system;
          inherit (pkgs) lib;
         };
       }
