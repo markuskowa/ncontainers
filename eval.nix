@@ -68,7 +68,7 @@ let
   ) config;
 
 in {
-  all = pkgs.writeShellScript "run-all"
+  default = pkgs.writeShellScript "run-all"
     (concatStringsSep "\n" (map (x: x.value) (attrsToList nodeRunners)));
   } // nodeRunners
 
