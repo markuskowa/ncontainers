@@ -42,7 +42,7 @@ in {
 
       address = mkOption {
         description = "IPv4 address for host0 interface";
-        default = null;
+        default = [];
         type = with types; listOf attrs;
       };
 
