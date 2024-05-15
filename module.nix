@@ -14,6 +14,7 @@ let
 in {
   options = {
     host = mkOption {
+      description = "Target host for deployment";
       type = with types; nullOr str;
       default = null;
     };
@@ -24,13 +25,27 @@ in {
     };
 
     prefix = mkOption {
+      description = "Prefix for container name";
       type = types.str;
       default = "kv-";
     };
 
     root = mkOption {
+      description = "Filesystem root location";
       type = types.str;
       default = "/run/container/${config.prefix}${name}";
+    };
+
+    keep = mkOption {
+      description = "Keep root filesystem after shutdown";
+      type = types.bool;
+      default = false;
+    };
+
+    extraStartup = mkOption {
+      description = "Extra commands to be exectuted on host before startup";
+      type = types.lines;
+      default = "";
     };
 
     networking = {

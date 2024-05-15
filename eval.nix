@@ -48,17 +48,20 @@ let
       nodeConfig = (evalConfig name node).config;
       rootPath = nodeConfig.root;
 
+      # This is the container startup script
       containerScript = pkgs.writeShellScript "container-${name}"
       ''
         # create and clean root dir
         ${pkgs.coreutils}/bin/mkdir -p ${rootPath}
+
+        ${nodeConfig.extraStartup}
 
         systemd-nspawn --private-network --private-users=pick --resolv-conf=copy-host --bind-ro /nix/store \
             ${nodeConfig.commandLine} \
             -M "${nodeConfig.prefix + name}" \
             -D ${rootPath} ${system}/init
 
-        ${pkgs.coreutils}/bin/rm -r ${rootPath}
+        ${optionalString (!nodeConfig.keep) "${pkgs.coreutils}/bin/rm -r ${rootPath}"}
       '';
     in
     pkgs.writeScript "run-${name}" ''
@@ -72,5 +75,4 @@ in {
   default = pkgs.writeShellScript "run-all"
     (concatStringsSep "\n" (map (x: x.value) (attrsToList nodeRunners)));
   } // nodeRunners
-
 
