@@ -64,15 +64,45 @@ let
         ${optionalString (!nodeConfig.keep) "${pkgs.coreutils}/bin/rm -r ${rootPath}"}
       '';
     in
-    pkgs.writeScript "run-${name}" ''
-      ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
-      systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
-          ${containerScript}
+    pkgs.writeScript "machine-${name}" ''
+
+      if [ -z "$1" ]; then
+        echo "Usage $(basename $0) <start|update|stop|status>"
+        exit 1
+      fi
+
+      case "$1" in
+        start)
+          ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
+          systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
+              ${containerScript}
+        ;;
+        update)
+          systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
+            -M "${nodeConfig.prefix + name}" \
+            --wait \
+            ${system}/activate
+        ;;
+        stop)
+          systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
+            -M "${nodeConfig.prefix + name}" \
+            /run/current-system/sw/bin/shutdown -h now
+        ;;
+        status)
+          machinectl ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
+            status ${nodeConfig.prefix + name}
+        ;;
+        *)
+          echo "Unknown command"
+          exit 1
+        ;;
+      esac
     ''
   ) config;
 
 in {
-  default = pkgs.writeShellScript "run-all"
-    (concatStringsSep "\n" (map (x: x.value) (attrsToList nodeRunners)));
+  # Pack all run scripts into one
+  default = pkgs.writeShellScript "machine-all"
+    (concatStringsSep "\n" (map (x: "${x.value} $1") (attrsToList nodeRunners)));
   } // nodeRunners
 
