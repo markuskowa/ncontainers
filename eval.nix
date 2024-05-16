@@ -81,7 +81,7 @@ let
           systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
             -M "${nodeConfig.prefix + name}" \
             --wait \
-            ${system}/activate
+            ${system}/bin/switch-to-configuration switch
         ;;
         stop)
           systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
