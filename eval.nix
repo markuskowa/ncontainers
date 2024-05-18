@@ -67,7 +67,7 @@ let
     pkgs.writeScript "machine-${name}" ''
 
       if [ -z "$1" ]; then
-        echo "Usage $(basename $0) <start|update|stop|status>"
+        echo "Usage $(basename $0) <start|update|stop|status|shell>"
         exit 1
       fi
 
@@ -91,6 +91,10 @@ let
         status)
           machinectl ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
             status ${nodeConfig.prefix + name}
+        ;;
+        shell)
+          ${optionalString (nodeConfig.host != null) "ssh -t ${nodeConfig.host}"} \
+            machinectl shell "${nodeConfig.prefix + name}"
         ;;
         *)
           echo "Unknown command"
