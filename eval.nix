@@ -80,12 +80,12 @@ let
         update)
           ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
           ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
-            machinectl "${nodeConfig.prefix + name}" shell \
+            machinectl shell "${nodeConfig.prefix + name}" \
             ${system}/bin/switch-to-configuration switch
         ;;
         stop)
           ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
-            machinectl "${nodeConfig.prefix + name}" shell \
+            machinectl shell "${nodeConfig.prefix + name}" \
             /run/current-system/sw/bin/shutdown -h now
         ;;
         status)
