@@ -78,14 +78,14 @@ let
               ${containerScript}
         ;;
         update)
-          systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
-            -M "${nodeConfig.prefix + name}" \
-            --wait \
+          ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
+          ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
+            machinectl "${nodeConfig.prefix + name}" shell \
             ${system}/bin/switch-to-configuration switch
         ;;
         stop)
-          systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
-            -M "${nodeConfig.prefix + name}" \
+          ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
+            machinectl "${nodeConfig.prefix + name}" shell \
             /run/current-system/sw/bin/shutdown -h now
         ;;
         status)
