@@ -109,7 +109,7 @@ in {
                   # ;
                   nixpkgs = {
                     # inherit pkgs;
-                    buildPlatform.system = system;
+                    buildPlatform.system = config.system;
                     hostPlatform.system = config.system;
                   };
                   boot.isContainer = true;
