@@ -1,19 +1,7 @@
 { pkgs ? import <nixpkgs> {}
 , lib ? pkgs.lib
 , system ? builtins.currentSystem
-, config ? {
-  node1 = {
-    # system = "aarch64-linux";
-    networking.bridge = "br-kv";
-    files = [ { path  ="/tmp/share"; ro= false; } ];
-    networking.address = [{address="192.168.10.1"; prefixLength=24;}];
-    networking.ports = [ "2000" ];
-  };
-  node2 = {
-    networking.bridge = "br-kv";
-    networking.address = [{address="192.168.10.2"; prefixLength=24;}];
-  };
-}
+, config
 } :
 
 let
