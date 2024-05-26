@@ -1,5 +1,5 @@
 {
-  description = "NixOS containers";
+  description = "NixOS ncontainers";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-23.11";
@@ -20,9 +20,7 @@
   {
     packages = forAllSystems (pkgs: system:
       ncontainers.lib.eval {
-        pkgs = nixpkgs.legacyPackages.${system};
-        lib = nixpkgs.lib;
-        inherit system;
+        inherit pkgs system;
         config = {
           node1 = {};
         };
