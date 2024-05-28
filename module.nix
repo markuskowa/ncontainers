@@ -72,6 +72,28 @@ in {
         default = null;
         description = "Network bridge interface";
       };
+
+      resolvConf = mkOption {
+        type = with types; enum [
+          "off"
+          "copy-host"
+          "copy-static"
+          "copy-uplink"
+          "copy-stub"
+          "replace-host"
+          "replace-static"
+          "replace-uplink"
+          "replace-stub"
+          "bind-host"
+          "bind-static"
+          "bind-uplink"
+          "bind-stub"
+          "delete"
+          "auto"
+        ];
+        description = "systemd-nspawns's --resolv-conf option";
+        default = "copy-host";
+      };
     };
 
     files = mkOption {
@@ -108,7 +130,6 @@ in {
                   #           else { inherit (host.config.nixpkgs) localSystem; }
                   # ;
                   nixpkgs = {
-                    # inherit pkgs;
                     buildPlatform.system = config.system;
                     hostPlatform.system = config.system;
                   };
@@ -134,13 +155,17 @@ in {
   };
 
   config = {
-    commandLine = config.networking.extraConfig + " "
-      + (concatStringsSep " " (map (f:
+    commandLine = config.networking.extraConfig
+      + " --resolv-conf=${config.networking.resolvConf}"
+      # Bind mounts
+      + " " + (concatStringsSep " " (map (f:
         (if f.ro then "--bind-ro " else "--bind ") + f.path
       ) config.files ))
+      # Port mappings
       + (concatStrings (map (p:
         " -p ${toString p}"
       ) config.networking.ports ))
+      # Bridge
       + optionalString (config.networking.bridge != null) " --network-bridge=${config.networking.bridge}"
       ;
   };

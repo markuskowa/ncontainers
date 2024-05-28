@@ -45,7 +45,7 @@ let
 
         ${nodeConfig.extraStartup}
 
-        systemd-nspawn --private-network --private-users=pick --resolv-conf=copy-host --bind-ro /nix/store \
+        systemd-nspawn --private-network --private-users=pick --bind-ro /nix/store \
             ${nodeConfig.commandLine} \
             -M "${nodeConfig.prefix + name}" \
             -D ${rootPath} ${system}/init
