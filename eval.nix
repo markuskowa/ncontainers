@@ -32,12 +32,13 @@ let
   # Generate container runner script
   nodeRunners = mapAttrs (name: node:
     let
-      system = systemClosure nodeConfig;
       nodeConfig = (evalConfig name node).config;
+      system = systemClosure nodeConfig;
       rootPath = nodeConfig.root;
+      machName = nodeConfig.prefix + name;
 
       # This is the container startup script
-      containerScript = pkgs.writeShellScript "container-${name}"
+      containerScript = pkgs.writeShellScript "container-${machName}"
       ''
         # create and clean root dir
         ${pkgs.coreutils}/bin/mkdir -p ${rootPath}
@@ -52,15 +53,25 @@ let
         ${optionalString (!nodeConfig.keep) "${pkgs.coreutils}/bin/rm -r ${rootPath}"}
       '';
     in
-    pkgs.writeScript "machine-${name}" ''
+    pkgs.writeScript "machine-${machName}" ''
 
       if [ -z "$1" ]; then
-        echo "Usage $(basename $0) <start|update|stop|status|shell>"
+        printf "Usage $(basename $0) <start|update|stop|status|shell>\n"
         exit 1
       fi
 
+      check_status () {
+        machinectl ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
+          status ${machName}
+      }
+
       case "$1" in
         start)
+          if check_status > /dev/null; then
+            printf "${machName} is already running!\n"
+            exit 1
+          fi
+
           ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
           systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
               ${containerScript}
@@ -68,21 +79,20 @@ let
         update)
           ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
           ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
-            machinectl shell "${nodeConfig.prefix + name}" \
+            machinectl shell "${machName}" \
             ${system}/bin/switch-to-configuration switch
         ;;
         stop)
           ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
-            machinectl shell "${nodeConfig.prefix + name}" \
+            machinectl shell "${machName}" \
             /run/current-system/sw/bin/shutdown -h now
         ;;
         status)
-          machinectl ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
-            status ${nodeConfig.prefix + name}
+          check_status
         ;;
         shell)
           ${optionalString (nodeConfig.host != null) "ssh -t ${nodeConfig.host}"} \
-            machinectl shell "${nodeConfig.prefix + name}"
+            machinectl shell "${machName}"
         ;;
         *)
           echo "Unknown command"
