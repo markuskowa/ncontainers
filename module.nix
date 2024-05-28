@@ -51,19 +51,19 @@ in {
     networking = {
       extraConfig = mkOption {
         type = types.str;
-        description = "Network interface definitions";
+        description = "Network interface definitions (nspawn command line options)";
         default = "";
       };
 
       address = mkOption {
-        description = "IPv4 address for host0 interface";
+        description = "IPv4 address for host0 interface (NixOS type networking.interfaces.<>.ipv4.adddresses)";
         default = [];
         type = with types; listOf attrs;
       };
 
       ports = mkOption {
         type = with types; listOf (oneOf [str port]);
-        description = "List of port forwardings";
+        description = "List of port forwardings (nspawn commanline -p option)";
         default = [];
       };
 
