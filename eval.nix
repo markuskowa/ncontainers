@@ -41,21 +41,22 @@ let
       containerScript = pkgs.writeShellScript "container-${machName}"
       ''
         # create and clean root dir
-        ${pkgs.coreutils}/bin/mkdir -p ${rootPath}
+        ${lib.getBin pkgs.coreutils}/bin/mkdir -p ${rootPath}
 
         ${nodeConfig.extraStartup}
 
-        systemd-nspawn --private-network --private-users=pick --bind-ro /nix/store \
+        systemd-nspawn --private-network -U --bind-ro=/nix/store \
             ${nodeConfig.commandLine} \
-            -M "${nodeConfig.prefix + name}" \
-            -D ${rootPath} ${system}/init
+            --machine "${machName}" \
+            --directory "${rootPath}" ${system}/init
 
-        ${optionalString (!nodeConfig.keep) "${pkgs.coreutils}/bin/rm -r ${rootPath}"}
+        ${optionalString (!nodeConfig.keep) "${lib.getBin pkgs.coreutils}/bin/rm -r ${rootPath}"}
       '';
     in
     pkgs.writeScript "machine-${machName}" ''
+      set -eu
 
-      if [ -z "$1" ]; then
+      if [ $# -neq 1 ]; then
         printf "Usage $(basename $0) <start|update|stop|status|shell>\n"
         exit 1
       fi
@@ -95,7 +96,7 @@ let
             machinectl shell "${machName}"
         ;;
         *)
-          echo "Unknown command"
+          printf "Unknown command\n" 1>&2
           exit 1
         ;;
       esac
