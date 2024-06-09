@@ -21,7 +21,7 @@ in {
 
     system = mkOption {
       type = types.str;
-      default = pkgs.system;
+      default = system;
     };
 
     prefix = mkOption {
