@@ -38,6 +38,7 @@ let
       machName = nodeConfig.prefix + name;
 
       # This is the container startup script
+      # Note: this is run with systemd-run, all paths need to be defined
       containerScript = pkgs.writeShellScript "container-${machName}"
       ''
         # create and clean root dir
@@ -56,7 +57,7 @@ let
     pkgs.writeScript "machine-${machName}" ''
       set -eu
 
-      if [ $# -neq 1 ]; then
+      if [ $# != 1 ]; then
         printf "Usage $(basename $0) <start|update|stop|status|shell>\n"
         exit 1
       fi
@@ -84,6 +85,7 @@ let
             ${system}/bin/switch-to-configuration switch
         ;;
         stop)
+          # Use shutdown command to wait for container shutdown
           ${optionalString (nodeConfig.host != null) "ssh ${nodeConfig.host}"} \
             machinectl shell "${machName}" \
             /run/current-system/sw/bin/shutdown -h now
