@@ -29,6 +29,7 @@
           node1 = {
             networking.bridge = "br-kv";
             networking.address = [{address="${node1Addr}"; prefixLength=24;}];
+            devices = [ "/dev/kvm" ];
           };
         };
       };
