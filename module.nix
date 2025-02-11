@@ -150,7 +150,7 @@ in {
       ) config.networking.ports ))
       + optionalString (config.networking.bridge != null) " --network-bridge=${config.networking.bridge}"
       + (concatStringsSep " " (map (dev:
-         " --bind=${dev} --property=DeviceAllow=${dev}"
+         '' --bind=${dev} "--property=DeviceAllow=${dev} rw"''
         ) config.devices))
       ;
   };
