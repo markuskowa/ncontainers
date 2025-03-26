@@ -41,6 +41,7 @@ let
       ''
         # create and clean root dir
         ${pkgs.coreutils}/bin/mkdir -p ${rootPath}
+        ${optionalString (!nodeConfig.keep) "${pkgs.util-linux}/bin/mount -t tmpfs tmpfs ${rootPath}"}
 
         ${nodeConfig.extraStartup}
 
@@ -49,7 +50,7 @@ let
             -M "${nodeConfig.prefix + name}" \
             -D ${rootPath} ${system}/init
 
-        ${optionalString (!nodeConfig.keep) "${pkgs.coreutils}/bin/rm -r ${rootPath}"}
+        ${optionalString (!nodeConfig.keep) "${pkgs.util-linux}/bin/umount ${rootPath}"}
       '';
     in
     pkgs.writeScript "machine-${name}" ''

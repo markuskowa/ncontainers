@@ -1,0 +1,17 @@
+name: Build VM test
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+
+jobs:
+  build-flake:
+    name: Build hydraJobs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix build .#hydraJobs.x86_64-linux.launchSingleNode
+
