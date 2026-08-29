@@ -34,7 +34,7 @@
         };
       };
     in  {
-        launchSingleNode = (pkgs.nixosTest {
+        launchSingleNode = (pkgs.testers.nixosTest {
           name =  "Single node test";
           nodes.main = {
             networking.bridges.br-kv.interfaces = [ ];
@@ -43,6 +43,7 @@
           testScript = ''
             start_all()
             main.wait_for_unit("multi-user.target")
+            main.succeed("echo ${nodeRunner.node1} >&2")
             main.succeed("${nodeRunner.node1} start")
             main.wait_until_succeeds("machinectl status kv-node1")
             main.wait_until_succeeds("ping -c 1 ${node1Addr}")

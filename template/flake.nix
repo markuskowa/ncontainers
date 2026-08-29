@@ -2,7 +2,7 @@
   description = "NixOS ncontainers";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05";
     ncontainers = {
       url = "git+https://gitea.home/markus/ncontainers.git";
       inputs.nixpkgs.follows = "nixpkgs";

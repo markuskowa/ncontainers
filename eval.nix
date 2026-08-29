@@ -43,6 +43,9 @@ let
         ${pkgs.coreutils}/bin/mkdir -p ${rootPath}
         ${optionalString (!nodeConfig.keep) "${pkgs.util-linux}/bin/mount -t tmpfs tmpfs ${rootPath}"}
 
+        # nspawn refuse to start if no /usr is present!?
+        ${optionalString (!nodeConfig.keep) "${pkgs.coreutils}/bin/mkdir -p ${rootPath}/usr"}
+
         ${nodeConfig.extraStartup}
 
         systemd-nspawn --private-network --private-users=pick --resolv-conf=copy-host --bind-ro /nix/store \
@@ -56,14 +59,16 @@ let
     pkgs.writeScript "machine-${name}" ''
 
       if [ -z "$1" ]; then
-        echo "Usage $(basename $0) <start|update|stop|status|shell>"
+        echo "Usage $(basename $0) [-f] <start|update|stop|status|shell>"
         exit 1
       fi
+
+      runner="systemd-run"
 
       case "$1" in
         start)
           ${optionalString (nodeConfig.host != null) "nix-copy-closure --to ${nodeConfig.host} ${containerScript}"}
-          systemd-run ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
+          $runner ${optionalString (nodeConfig.host != null) "-H ${nodeConfig.host}"} \
               ${containerScript}
         ;;
         update)
@@ -84,6 +89,10 @@ let
         shell)
           ${optionalString (nodeConfig.host != null) "ssh -t ${nodeConfig.host}"} \
             machinectl shell "${nodeConfig.prefix + name}"
+        ;;
+        "-f")
+          runner=""
+          shift
         ;;
         *)
           echo "Unknown command"
