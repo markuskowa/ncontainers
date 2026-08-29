@@ -77,7 +77,9 @@ in {
     devices = mkOption {
       type = with types; listOf str;
       default = [];
-      example = "[ "/dev/kvm" ]";
+      example = ''
+        [ "/dev/kvm rw" ]
+      '';
       description = "Allow container access to devices";
     };
 
@@ -150,7 +152,7 @@ in {
       ) config.networking.ports ))
       + optionalString (config.networking.bridge != null) " --network-bridge=${config.networking.bridge}"
       + (concatStringsSep " " (map (dev:
-         " --bind=${dev} \"--property=DeviceAllow=${dev} rw\""
+         " --bind=${dev} \"--property=DeviceAllow=${dev}\""
         ) config.devices))
       ;
   };
