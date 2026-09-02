@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05";
     ncontainers = {
-      url = "git+https://gitea.home/markus/ncontainers.git";
+      url = "https://github.com/markus/ncontainers.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
